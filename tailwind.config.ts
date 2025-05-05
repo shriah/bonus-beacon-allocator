@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,15 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Adding our custom color palette
+				finance: {
+					primary: '#1a365d',
+					secondary: '#2c7a7b',
+					accent: '#38b2ac',
+					light: '#e6fffa',
+					dark: '#234e52',
+					muted: '#e2e8f0'
 				}
 			},
 			borderRadius: {
