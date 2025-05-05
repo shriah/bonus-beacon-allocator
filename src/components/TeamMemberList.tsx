@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useBonusContext } from '@/contexts/BonusContext';
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from '@/components/ui/badge';
+import CsvImport from './CsvImport';
 
 const TeamMemberList: React.FC = () => {
   const { teamMembers, bonusPool, addTeamMember, updateTeamMember, removeTeamMember, autoAllocate, resetAllocations } = useBonusContext();
@@ -49,53 +50,56 @@ const TeamMemberList: React.FC = () => {
               Manage team members and their bonus allocations
             </CardDescription>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="secondary" size="sm">Add Member</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add Team Member</DialogTitle>
-                <DialogDescription>
-                  Add a new team member to allocate bonus to.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">Name</Label>
-                  <Input 
-                    id="name" 
-                    value={newMember.name}
-                    onChange={(e) => setNewMember({...newMember, name: e.target.value})}
-                    className="col-span-3" 
-                  />
+          <div className="flex space-x-2">
+            <CsvImport />
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="secondary" size="sm">Add Member</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Team Member</DialogTitle>
+                  <DialogDescription>
+                    Add a new team member to allocate bonus to.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="name" className="text-right">Name</Label>
+                    <Input 
+                      id="name" 
+                      value={newMember.name}
+                      onChange={(e) => setNewMember({...newMember, name: e.target.value})}
+                      className="col-span-3" 
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="role" className="text-right">Role</Label>
+                    <Input 
+                      id="role" 
+                      value={newMember.role}
+                      onChange={(e) => setNewMember({...newMember, role: e.target.value})}
+                      className="col-span-3" 
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="eligibleAmount" className="text-right">Eligible Amount ($)</Label>
+                    <Input 
+                      id="eligibleAmount" 
+                      type="number"
+                      value={newMember.eligibleAmount || ''}
+                      onChange={(e) => setNewMember({...newMember, eligibleAmount: parseInt(e.target.value) || 0})}
+                      className="col-span-3" 
+                    />
+                  </div>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="role" className="text-right">Role</Label>
-                  <Input 
-                    id="role" 
-                    value={newMember.role}
-                    onChange={(e) => setNewMember({...newMember, role: e.target.value})}
-                    className="col-span-3" 
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="eligibleAmount" className="text-right">Eligible Amount ($)</Label>
-                  <Input 
-                    id="eligibleAmount" 
-                    type="number"
-                    value={newMember.eligibleAmount || ''}
-                    onChange={(e) => setNewMember({...newMember, eligibleAmount: parseInt(e.target.value) || 0})}
-                    className="col-span-3" 
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                <Button onClick={handleAddMember}>Add Member</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                  <Button onClick={handleAddMember}>Add Member</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-0">

@@ -1,29 +1,31 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Slider } from "@/components/ui/slider";
 import { useBonusContext } from '@/contexts/BonusContext';
 
 const BonusPoolSettings: React.FC = () => {
-  const { bonusPool, updateBonusPool } = useBonusContext();
-  const [amount, setAmount] = useState(bonusPool.totalAmount.toString());
+  const { bonusPool, updateBonusPool, updateBonusPercentage } = useBonusContext();
   const [strategy, setStrategy] = useState<'equal' | 'proportional' | 'custom'>(bonusPool.allocationStrategy);
+  const [percentage, setPercentage] = useState(bonusPool.percentageOfEligible);
+  
+  // Update local percentage state when bonusPool changes externally
+  useEffect(() => {
+    setPercentage(bonusPool.percentageOfEligible);
+  }, [bonusPool.percentageOfEligible]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const numericAmount = parseInt(amount);
-    if (isNaN(numericAmount) || numericAmount <= 0) {
-      return; // Should add proper validation
-    }
-
     updateBonusPool({
-      totalAmount: numericAmount,
       allocationStrategy: strategy
     });
+    
+    updateBonusPercentage(percentage);
   };
 
   return (
@@ -31,21 +33,31 @@ const BonusPoolSettings: React.FC = () => {
       <CardHeader className="bg-finance-secondary text-white">
         <CardTitle>Configure Bonus Pool</CardTitle>
         <CardDescription className="text-finance-light opacity-80">
-          Set your total bonus budget and allocation strategy
+          Set your bonus pool percentage and allocation strategy
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-          <div className="space-y-2">
-            <Label htmlFor="totalAmount">Total Bonus Amount ($)</Label>
-            <Input
-              id="totalAmount"
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full"
-              min="1"
-            />
+          <div className="space-y-4">
+            <Label>Bonus Pool Size (% of Total Eligible Amount)</Label>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm font-medium">{percentage}%</span>
+                <span className="text-sm text-gray-500">
+                  ${bonusPool.totalAmount.toLocaleString()}
+                </span>
+              </div>
+              <Slider 
+                value={[percentage]} 
+                min={1} 
+                max={100} 
+                step={1} 
+                onValueChange={(values) => setPercentage(values[0])}
+              />
+              <p className="text-xs text-gray-500">
+                Bonus pool will be {percentage}% of the total eligible amount (${bonusPool.totalAmount.toLocaleString()})
+              </p>
+            </div>
           </div>
 
           <div className="space-y-4">

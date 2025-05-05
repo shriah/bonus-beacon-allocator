@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { TeamMember, BonusPool } from '@/types/bonus';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,7 +7,9 @@ interface BonusContextType {
   bonusPool: BonusPool;
   teamMembers: TeamMember[];
   updateBonusPool: (newPool: Partial<BonusPool>) => void;
+  updateBonusPercentage: (percentage: number) => void;
   addTeamMember: (member: Omit<TeamMember, 'id' | 'actualAllocation'>) => void;
+  addMultipleTeamMembers: (members: Array<Omit<TeamMember, 'id' | 'actualAllocation'>>) => void;
   updateTeamMember: (id: string, updates: Partial<TeamMember>) => void;
   removeTeamMember: (id: string) => void;
   autoAllocate: () => void;
@@ -29,10 +30,11 @@ export const BonusProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const { toast } = useToast();
   
   const [bonusPool, setBonusPool] = useState<BonusPool>({
-    totalAmount: 100000,
+    totalAmount: 0,
     allocationStrategy: 'equal',
     allocatedAmount: 0,
-    remainingAmount: 100000
+    remainingAmount: 0,
+    percentageOfEligible: 10 // Default to 10%
   });
 
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
@@ -59,7 +61,22 @@ export const BonusProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     },
   ]);
 
-  // Update bonus calculations whenever team members or pool changes
+  // Calculate the total eligible amount and set bonus pool accordingly
+  const calculateTotalEligibleAmount = () => {
+    const totalEligible = teamMembers.reduce((sum, member) => sum + member.eligibleAmount, 0);
+    const poolAmount = Math.round(totalEligible * bonusPool.percentageOfEligible / 100);
+    
+    setBonusPool(prev => ({
+      ...prev,
+      totalAmount: poolAmount
+    }));
+  };
+
+  // Update bonus calculations whenever team members, pool or percentage changes
+  useEffect(() => {
+    calculateTotalEligibleAmount();
+  }, [teamMembers, bonusPool.percentageOfEligible]);
+
   useEffect(() => {
     calculateBonusMetrics();
   }, [teamMembers, bonusPool.totalAmount, bonusPool.allocationStrategy]);
@@ -86,6 +103,15 @@ export const BonusProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   };
 
+  // Specific method to update the percentage
+  const updateBonusPercentage = (percentage: number) => {
+    setBonusPool(prev => ({ ...prev, percentageOfEligible: percentage }));
+    toast({
+      title: "Bonus Percentage Updated",
+      description: `Bonus pool is now ${percentage}% of eligible amounts.`
+    });
+  };
+
   const addTeamMember = (member: Omit<TeamMember, 'id' | 'actualAllocation'>) => {
     const newMember: TeamMember = {
       ...member,
@@ -97,6 +123,23 @@ export const BonusProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     toast({
       title: "Team Member Added",
       description: `${member.name} has been added to the team.`
+    });
+  };
+
+  // New method to add multiple team members at once (for CSV import)
+  const addMultipleTeamMembers = (members: Array<Omit<TeamMember, 'id' | 'actualAllocation'>>) => {
+    if (members.length === 0) return;
+
+    const newMembers = members.map(member => ({
+      ...member,
+      id: uuidv4(),
+      actualAllocation: 0
+    }));
+
+    setTeamMembers(prev => [...prev, ...newMembers]);
+    toast({
+      title: "Team Members Imported",
+      description: `${members.length} team members have been imported.`
     });
   };
 
@@ -204,7 +247,9 @@ export const BonusProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     bonusPool,
     teamMembers,
     updateBonusPool,
+    updateBonusPercentage,
     addTeamMember,
+    addMultipleTeamMembers,
     updateTeamMember,
     removeTeamMember,
     autoAllocate,

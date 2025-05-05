@@ -14,4 +14,5 @@ export type BonusPool = {
   allocationStrategy: 'equal' | 'proportional' | 'custom';
   allocatedAmount: number;
   remainingAmount: number;
+  percentageOfEligible: number; // New field to store percentage
 };
