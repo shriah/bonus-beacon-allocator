@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { TeamMember, BonusPool } from '@/types/bonus';
 import { v4 as uuidv4 } from 'uuid';
@@ -175,58 +176,87 @@ export const BonusProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const strategy = bonusPool.allocationStrategy;
     const totalAmount = bonusPool.totalAmount;
+    
+    // First, identify members with manual allocations
+    const membersWithManual = teamMembers.filter(m => m.manualAllocation !== undefined);
+    const membersWithoutManual = teamMembers.filter(m => m.manualAllocation === undefined);
+    
+    // Calculate total amount already allocated manually
+    const manuallyAllocated = membersWithManual.reduce(
+      (sum, member) => sum + (member.manualAllocation || 0), 
+      0
+    );
+    
+    // Calculate remaining amount available for distribution
+    const remainingAmount = Math.max(0, totalAmount - manuallyAllocated);
+    
     let newMembers: TeamMember[] = [];
-
-    if (strategy === 'equal') {
-      // Equal distribution
-      const perPersonAmount = totalAmount / teamMembers.length;
-      newMembers = teamMembers.map(member => ({
-        ...member,
-        actualAllocation: member.manualAllocation !== undefined ? 
-          member.manualAllocation : Math.floor(perPersonAmount)
-      }));
-    } else if (strategy === 'proportional') {
-      // Proportional to eligible amounts
-      const totalEligible = teamMembers.reduce((sum, member) => sum + member.eligibleAmount, 0);
-      newMembers = teamMembers.map(member => {
-        const proportion = member.eligibleAmount / totalEligible;
-        return {
+    
+    // First, copy over all manual allocations
+    newMembers = membersWithManual.map(member => ({
+      ...member,
+      actualAllocation: member.manualAllocation || 0
+    }));
+    
+    // If there are members without manual allocations, distribute remaining amount
+    if (membersWithoutManual.length > 0) {
+      // Decide distribution strategy for remaining amount
+      if (strategy === 'equal') {
+        // Equal distribution for non-manual members
+        const perPersonAmount = remainingAmount / membersWithoutManual.length;
+        const nonManualMembers = membersWithoutManual.map(member => ({
           ...member,
-          actualAllocation: member.manualAllocation !== undefined ? 
-            member.manualAllocation : Math.floor(totalAmount * proportion)
-        };
-      });
-    } else if (strategy === 'custom') {
-      // Respect manual allocations, distribute remaining equally
-      const membersWithManual = teamMembers.filter(m => m.manualAllocation !== undefined);
-      const membersWithoutManual = teamMembers.filter(m => m.manualAllocation === undefined);
-      
-      const allocatedToManual = membersWithManual.reduce((sum, m) => sum + (m.manualAllocation || 0), 0);
-      const remaining = Math.max(0, totalAmount - allocatedToManual);
-      
-      if (membersWithoutManual.length > 0) {
-        const perPersonRemaining = remaining / membersWithoutManual.length;
-        
-        newMembers = teamMembers.map(member => {
-          if (member.manualAllocation !== undefined) {
-            return { ...member, actualAllocation: member.manualAllocation };
-          } else {
-            return { ...member, actualAllocation: Math.floor(perPersonRemaining) };
-          }
-        });
-      } else {
-        // All members have manual allocations
-        newMembers = teamMembers.map(member => ({
-          ...member,
-          actualAllocation: member.manualAllocation || 0
+          actualAllocation: Math.floor(perPersonAmount)
         }));
+        newMembers = [...newMembers, ...nonManualMembers];
+        
+      } else if (strategy === 'proportional') {
+        // Proportional distribution based on eligible amount for non-manual members
+        const totalEligible = membersWithoutManual.reduce(
+          (sum, member) => sum + member.eligibleAmount, 
+          0
+        );
+        
+        // Avoid division by zero
+        if (totalEligible > 0) {
+          const nonManualMembers = membersWithoutManual.map(member => {
+            const proportion = member.eligibleAmount / totalEligible;
+            return {
+              ...member,
+              actualAllocation: Math.floor(remainingAmount * proportion)
+            };
+          });
+          newMembers = [...newMembers, ...nonManualMembers];
+        } else {
+          // If total eligible is 0, distribute equally
+          const perPersonAmount = remainingAmount / membersWithoutManual.length;
+          const nonManualMembers = membersWithoutManual.map(member => ({
+            ...member,
+            actualAllocation: Math.floor(perPersonAmount)
+          }));
+          newMembers = [...newMembers, ...nonManualMembers];
+        }
+      } else {
+        // Custom strategy - distribute remaining equally among non-manual members
+        const perPersonRemaining = remainingAmount / membersWithoutManual.length;
+        const nonManualMembers = membersWithoutManual.map(member => ({
+          ...member,
+          actualAllocation: Math.floor(perPersonRemaining)
+        }));
+        newMembers = [...newMembers, ...nonManualMembers];
       }
     }
+    
+    // Sort the team members to maintain the original order
+    const memberIdMap = new Map(teamMembers.map((member, index) => [member.id, index]));
+    newMembers.sort((a, b) => {
+      return (memberIdMap.get(a.id) || 0) - (memberIdMap.get(b.id) || 0);
+    });
 
     setTeamMembers(newMembers);
     toast({
       title: "Bonus Auto-Allocated",
-      description: `Bonuses have been allocated using the ${strategy} strategy.`
+      description: `Bonuses have been allocated using the ${strategy} strategy while preserving manual allocations.`
     });
   };
 
