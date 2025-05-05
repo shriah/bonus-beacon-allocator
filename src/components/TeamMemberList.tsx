@@ -10,6 +10,7 @@ import { useBonusContext } from '@/contexts/BonusContext';
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from '@/components/ui/badge';
 import CsvImport from './CsvImport';
+import { Export, Percent } from 'lucide-react';
 
 const TeamMemberList: React.FC = () => {
   const { teamMembers, bonusPool, addTeamMember, updateTeamMember, removeTeamMember, autoAllocate, resetAllocations } = useBonusContext();
@@ -40,6 +41,46 @@ const TeamMemberList: React.FC = () => {
     }
   };
 
+  // Function to calculate percentage and display it
+  const getAllocationPercentage = (member: { actualAllocation: number; eligibleAmount: number }) => {
+    if (member.eligibleAmount <= 0) return "0%";
+    const percentage = (member.actualAllocation / member.eligibleAmount) * 100;
+    return `${percentage.toFixed(1)}%`;
+  };
+
+  // Function to export team member data to CSV
+  const exportToCSV = () => {
+    // Create CSV header
+    const header = ['Name', 'Role', 'Eligible Amount', 'Actual Allocation', 'Allocation %', 'Notes'];
+    
+    // Create CSV data rows
+    const rows = teamMembers.map(member => [
+      member.name,
+      member.role,
+      member.eligibleAmount.toString(),
+      member.actualAllocation.toString(),
+      ((member.actualAllocation / member.eligibleAmount) * 100).toFixed(1),
+      member.notes || ''
+    ]);
+    
+    // Combine header and rows
+    const csvContent = [
+      header.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+    
+    // Create blob and download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'team_bonus_allocation.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <Card className="shadow-lg">
       <CardHeader className="bg-finance-primary text-white">
@@ -51,6 +92,15 @@ const TeamMemberList: React.FC = () => {
             </CardDescription>
           </div>
           <div className="flex space-x-2">
+            <Button 
+              onClick={exportToCSV}
+              variant="secondary" 
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <Export size={16} />
+              Export
+            </Button>
             <CsvImport />
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
@@ -126,6 +176,12 @@ const TeamMemberList: React.FC = () => {
                 <TableHead className="text-right">Eligible Amount</TableHead>
                 <TableHead>Manual Override</TableHead>
                 <TableHead className="text-right">Actual Allocation</TableHead>
+                <TableHead className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    <Percent size={16} /> 
+                    <span>of Eligible</span>
+                  </div>
+                </TableHead>
                 <TableHead className="w-[100px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -152,6 +208,9 @@ const TeamMemberList: React.FC = () => {
                       </Badge>
                     )}
                   </TableCell>
+                  <TableCell className="text-right">
+                    {getAllocationPercentage(member)}
+                  </TableCell>
                   <TableCell>
                     <Button 
                       variant="ghost" 
@@ -166,7 +225,7 @@ const TeamMemberList: React.FC = () => {
               ))}
               {teamMembers.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                     No team members added yet. Click "Add Member" to get started.
                   </TableCell>
                 </TableRow>
