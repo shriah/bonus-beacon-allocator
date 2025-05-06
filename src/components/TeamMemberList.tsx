@@ -10,7 +10,7 @@ import { useBonusContext } from '@/contexts/BonusContext';
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from '@/components/ui/badge';
 import CsvImport from './CsvImport';
-import { Export, Percent } from 'lucide-react';
+import { FileDown, Percent } from 'lucide-react';
 
 const TeamMemberList: React.FC = () => {
   const { teamMembers, bonusPool, addTeamMember, updateTeamMember, removeTeamMember, autoAllocate, resetAllocations } = useBonusContext();
