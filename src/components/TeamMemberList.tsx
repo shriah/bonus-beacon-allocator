@@ -98,7 +98,7 @@ const TeamMemberList: React.FC = () => {
               size="sm"
               className="flex items-center gap-1"
             >
-              <Export size={16} />
+              <FileDown size={16} />
               Export
             </Button>
             <CsvImport />
