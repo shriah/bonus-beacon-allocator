@@ -58,8 +58,9 @@ const CsvImport: React.FC = () => {
           continue;
         }
         
-        // Parse eligible amount as a number
-        const eligibleAmount = parseFloat(eligibleAmountStr);
+        // Parse eligible amount as a number (handle currency symbols and commas)
+        const cleanAmountStr = eligibleAmountStr.replace(/[$,\s]/g, '');
+        const eligibleAmount = parseFloat(cleanAmountStr);
         if (isNaN(eligibleAmount) || eligibleAmount < 0) {
           continue;
         }
