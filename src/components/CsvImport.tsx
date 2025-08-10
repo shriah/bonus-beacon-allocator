@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Import } from "lucide-react";
 
 const CsvImport: React.FC = () => {
-  const { addMultipleTeamMembers } = useBonusContext();
+  const { replaceAllTeamMembers } = useBonusContext();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -81,8 +81,8 @@ const CsvImport: React.FC = () => {
         return;
       }
 
-      // Add all valid members
-      addMultipleTeamMembers(members);
+      // Replace all existing members with imported ones
+      replaceAllTeamMembers(members);
       setIsOpen(false);
       setError(null);
       
@@ -131,7 +131,7 @@ const CsvImport: React.FC = () => {
         <DialogHeader>
           <DialogTitle>Import Team Members</DialogTitle>
           <DialogDescription>
-            Upload a CSV file with team member data.
+            Upload a CSV file with team member data. This will replace all existing team members.
             <br />
             The CSV must include columns for name, role, and eligibleAmount.
           </DialogDescription>

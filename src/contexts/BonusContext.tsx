@@ -11,6 +11,7 @@ interface BonusContextType {
   updateBonusPercentage: (percentage: number) => void;
   addTeamMember: (member: Omit<TeamMember, 'id' | 'actualAllocation'>) => void;
   addMultipleTeamMembers: (members: Array<Omit<TeamMember, 'id' | 'actualAllocation'>>) => void;
+  replaceAllTeamMembers: (members: Array<Omit<TeamMember, 'id' | 'actualAllocation'>>) => void;
   updateTeamMember: (id: string, updates: Partial<TeamMember>) => void;
   removeTeamMember: (id: string) => void;
   autoAllocate: () => void;
@@ -141,6 +142,23 @@ export const BonusProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     toast({
       title: "Team Members Imported",
       description: `${members.length} team members have been imported.`
+    });
+  };
+
+  // New method to replace all team members (for CSV import replacement)
+  const replaceAllTeamMembers = (members: Array<Omit<TeamMember, 'id' | 'actualAllocation'>>) => {
+    if (members.length === 0) return;
+
+    const newMembers = members.map(member => ({
+      ...member,
+      id: uuidv4(),
+      actualAllocation: 0
+    }));
+
+    setTeamMembers(newMembers);
+    toast({
+      title: "Team Members Replaced",
+      description: `All existing data replaced with ${members.length} new team members.`
     });
   };
 
@@ -280,6 +298,7 @@ export const BonusProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     updateBonusPercentage,
     addTeamMember,
     addMultipleTeamMembers,
+    replaceAllTeamMembers,
     updateTeamMember,
     removeTeamMember,
     autoAllocate,
