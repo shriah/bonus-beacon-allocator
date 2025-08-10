@@ -6,7 +6,8 @@ import { useBonusContext } from '@/contexts/BonusContext';
 import { formatINR } from '@/lib/currency';
 
 const BonusPoolCard: React.FC = () => {
-  const { bonusPool } = useBonusContext();
+  const { bonusPool, teamMembers } = useBonusContext();
+  const totalEligibleAmount = teamMembers.reduce((sum, member) => sum + member.eligibleAmount, 0);
   const percentAllocated = bonusPool.totalAmount > 0 
     ? (bonusPool.allocatedAmount / bonusPool.totalAmount) * 100 
     : 0;
@@ -43,14 +44,20 @@ const BonusPoolCard: React.FC = () => {
               className="h-2"
             />
           </div>
-          <div className="col-span-2 flex justify-between mt-3">
+          <div className="col-span-2 grid grid-cols-2 gap-4 mt-3">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Total Eligible</p>
+              <p className="text-lg font-bold text-gray-900">{formatINR(totalEligibleAmount)}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-medium text-gray-500">Total Allocated</p>
+              <p className="text-lg font-bold text-gray-900">{formatINR(bonusPool.allocatedAmount)}</p>
+            </div>
+          </div>
+          <div className="col-span-2 flex justify-between mt-3 pt-3 border-t border-gray-200">
             <div>
               <p className="text-sm font-medium text-gray-500">Strategy</p>
               <p className="text-base font-medium capitalize">{bonusPool.allocationStrategy}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-medium text-gray-500">Allocated</p>
-              <p className="text-base font-medium">{formatINR(bonusPool.allocatedAmount)}</p>
             </div>
           </div>
         </div>
