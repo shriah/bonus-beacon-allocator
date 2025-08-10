@@ -24,7 +24,7 @@ const TeamMembersTable: React.FC<TeamMembersTableProps> = ({
             <TableHead>Name</TableHead>
             <TableHead>Role</TableHead>
             <TableHead className="text-right">Eligible Amount</TableHead>
-            <TableHead>Manual Override</TableHead>
+            <TableHead>Manual Override (%)</TableHead>
             <TableHead className="text-right">Actual Allocation</TableHead>
             <TableHead className="text-right">
               <div className="flex items-center justify-end gap-1">

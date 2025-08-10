@@ -4,7 +4,7 @@ export type TeamMember = {
   name: string;
   role: string;
   eligibleAmount: number;
-  manualAllocation?: number; // Optional manual override
+  manualAllocationPercentage?: number; // Optional manual override as percentage of eligible amount
   actualAllocation: number;
   allocationPercentage?: number; // Percentage of allocation relative to eligible amount
   notes?: string;

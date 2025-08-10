@@ -196,12 +196,12 @@ export const BonusProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const totalAmount = bonusPool.totalAmount;
     
     // First, identify members with manual allocations
-    const membersWithManual = teamMembers.filter(m => m.manualAllocation !== undefined);
-    const membersWithoutManual = teamMembers.filter(m => m.manualAllocation === undefined);
+    const membersWithManual = teamMembers.filter(m => m.manualAllocationPercentage !== undefined);
+    const membersWithoutManual = teamMembers.filter(m => m.manualAllocationPercentage === undefined);
     
-    // Calculate total amount already allocated manually
+    // Calculate total amount already allocated manually (convert percentage to actual amount)
     const manuallyAllocated = membersWithManual.reduce(
-      (sum, member) => sum + (member.manualAllocation || 0), 
+      (sum, member) => sum + (member.eligibleAmount * (member.manualAllocationPercentage || 0) / 100), 
       0
     );
     
@@ -210,10 +210,10 @@ export const BonusProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     
     let newMembers: TeamMember[] = [];
     
-    // First, copy over all manual allocations
+    // First, copy over all manual allocations (convert percentage to actual amount)
     newMembers = membersWithManual.map(member => ({
       ...member,
-      actualAllocation: member.manualAllocation || 0
+      actualAllocation: Math.floor(member.eligibleAmount * (member.manualAllocationPercentage || 0) / 100)
     }));
     
     // If there are members without manual allocations, distribute remaining amount
@@ -281,7 +281,7 @@ export const BonusProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const resetAllocations = () => {
     const newMembers = teamMembers.map(member => ({
       ...member,
-      manualAllocation: undefined,
+      manualAllocationPercentage: undefined,
       actualAllocation: 0
     }));
     setTeamMembers(newMembers);

@@ -33,15 +33,17 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({
       <TableCell>
         <Input 
           type="number"
-          value={member.manualAllocation !== undefined ? member.manualAllocation : ''}
+          value={member.manualAllocationPercentage !== undefined ? member.manualAllocationPercentage : ''}
           onChange={(e) => onManualAllocation(member.id, e.target.value)}
           className="w-24"
           placeholder="Auto"
+          min="0"
+          max="100"
         />
       </TableCell>
       <TableCell className="text-right font-medium">
         {formatINR(member.actualAllocation)}
-        {member.manualAllocation !== undefined && (
+        {member.manualAllocationPercentage !== undefined && (
           <Badge variant="outline" className="ml-2 bg-orange-100 text-orange-800 border-orange-200">
             Manual
           </Badge>

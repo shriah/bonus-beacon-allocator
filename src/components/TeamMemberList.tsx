@@ -13,12 +13,12 @@ const TeamMemberList: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   const handleManualAllocation = (id: string, value: string) => {
-    const numericValue = parseInt(value);
-    if (isNaN(numericValue) || numericValue < 0) {
+    const numericValue = parseFloat(value);
+    if (isNaN(numericValue) || numericValue < 0 || numericValue > 100) {
       // Clear the manual allocation if invalid
-      updateTeamMember(id, { manualAllocation: undefined });
+      updateTeamMember(id, { manualAllocationPercentage: undefined });
     } else {
-      updateTeamMember(id, { manualAllocation: numericValue });
+      updateTeamMember(id, { manualAllocationPercentage: numericValue });
     }
   };
 
