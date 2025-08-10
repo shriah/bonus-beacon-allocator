@@ -64,7 +64,7 @@ const AddTeamMemberDialog: React.FC<AddTeamMemberDialogProps> = ({ isOpen, setIs
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="eligibleAmount" className="text-right">Eligible Amount ($)</Label>
+            <Label htmlFor="eligibleAmount" className="text-right">Eligible Amount (₹)</Label>
             <Input 
               id="eligibleAmount" 
               type="number"

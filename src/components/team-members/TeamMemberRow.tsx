@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from '@/components/ui/badge';
 import { TeamMember } from '@/types/bonus';
+import { formatINR } from '@/lib/currency';
 
 interface TeamMemberRowProps {
   member: TeamMember;
@@ -28,7 +29,7 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({
     <TableRow key={member.id}>
       <TableCell className="font-medium">{member.name}</TableCell>
       <TableCell>{member.role}</TableCell>
-      <TableCell className="text-right">${member.eligibleAmount.toLocaleString()}</TableCell>
+      <TableCell className="text-right">{formatINR(member.eligibleAmount)}</TableCell>
       <TableCell>
         <Input 
           type="number"
@@ -39,7 +40,7 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({
         />
       </TableCell>
       <TableCell className="text-right font-medium">
-        ${member.actualAllocation.toLocaleString()}
+        {formatINR(member.actualAllocation)}
         {member.manualAllocation !== undefined && (
           <Badge variant="outline" className="ml-2 bg-orange-100 text-orange-800 border-orange-200">
             Manual

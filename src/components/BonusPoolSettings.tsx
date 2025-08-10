@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
 import { useBonusContext } from '@/contexts/BonusContext';
+import { formatINR } from '@/lib/currency';
 
 const BonusPoolSettings: React.FC = () => {
   const { bonusPool, updateBonusPool, updateBonusPercentage } = useBonusContext();
@@ -44,7 +45,7 @@ const BonusPoolSettings: React.FC = () => {
               <div className="flex justify-between">
                 <span className="text-sm font-medium">{percentage}%</span>
                 <span className="text-sm text-gray-500">
-                  ${bonusPool.totalAmount.toLocaleString()}
+                  {formatINR(bonusPool.totalAmount)}
                 </span>
               </div>
               <Slider 
@@ -55,7 +56,7 @@ const BonusPoolSettings: React.FC = () => {
                 onValueChange={(values) => setPercentage(values[0])}
               />
               <p className="text-xs text-gray-500">
-                Bonus pool will be {percentage}% of the total eligible amount (${bonusPool.totalAmount.toLocaleString()})
+                Bonus pool will be {percentage}% of the total eligible amount ({formatINR(bonusPool.totalAmount)})
               </p>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useBonusContext } from '@/contexts/BonusContext';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChartBarBig } from "lucide-react";
+import { formatINR } from '@/lib/currency';
 
 const BonusSummary: React.FC = () => {
   const { teamMembers, bonusPool } = useBonusContext();
@@ -62,7 +63,7 @@ const BonusSummary: React.FC = () => {
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                   <XAxis
                     type="number"
-                    tickFormatter={(value) => `$${value.toLocaleString()}`}
+                    tickFormatter={(value) => formatINR(value)}
                   />
                   <YAxis
                     type="category"
@@ -71,7 +72,7 @@ const BonusSummary: React.FC = () => {
                     tick={{ fontSize: 12 }}
                   />
                   <Tooltip
-                    formatter={(value: number) => [`$${value.toLocaleString()}`, 'Allocation']}
+                    formatter={(value: number) => [formatINR(value), 'Allocation']}
                     labelStyle={{ fontWeight: 'bold' }}
                   />
                   <Bar dataKey="value" barSize={20}>

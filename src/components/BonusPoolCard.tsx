@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useBonusContext } from '@/contexts/BonusContext';
+import { formatINR } from '@/lib/currency';
 
 const BonusPoolCard: React.FC = () => {
   const { bonusPool } = useBonusContext();
@@ -23,13 +24,13 @@ const BonusPoolCard: React.FC = () => {
           <div>
             <p className="text-sm font-medium text-gray-500">Total Budget</p>
             <p className="text-3xl font-bold text-finance-primary">
-              ${bonusPool.totalAmount.toLocaleString()}
+              {formatINR(bonusPool.totalAmount)}
             </p>
           </div>
           <div>
             <p className="text-sm font-medium text-gray-500">Remaining</p>
             <p className={`text-3xl font-bold ${bonusPool.remainingAmount < 0 ? 'text-red-600' : 'text-green-600'}`}>
-              ${bonusPool.remainingAmount.toLocaleString()}
+              {formatINR(bonusPool.remainingAmount)}
             </p>
           </div>
           <div className="col-span-2 mt-2">
@@ -49,7 +50,7 @@ const BonusPoolCard: React.FC = () => {
             </div>
             <div className="text-right">
               <p className="text-sm font-medium text-gray-500">Allocated</p>
-              <p className="text-base font-medium">${bonusPool.allocatedAmount.toLocaleString()}</p>
+              <p className="text-base font-medium">{formatINR(bonusPool.allocatedAmount)}</p>
             </div>
           </div>
         </div>
